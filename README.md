@@ -28,6 +28,12 @@ before copying anything.
 - ✅ **The filament catalog goes here, and only here:**
   `/home/qidi/printer_data/config/officiall_filas_list.cfg`
 
+- 🔄 **Last step, do not skip it: hard-refresh Fluidd** in your
+  browser (**Ctrl+F5**, or **Cmd+Shift+R** on Mac). Fluidd's
+  service worker can keep serving the old bundle from your
+  browser's cache — a perfectly correct install can look
+  completely unchanged until you hard-refresh.
+
 Two files, two exact locations, exact names. If a step below
 seems to say otherwise, this box wins.
 
