@@ -3,6 +3,14 @@
 Bundle format: QIDI's shipped Fluidd v1.30.5 (`index-DlFvHGAh.js`).
 Reference stock bundle MD5: `b9bc4faaf367d0603d92d7217476c57a`.
 
+## Documentation — 2026-11-06
+
+- **Documentation:** step-by-step connection and install guide
+  (new *Connecting to the printer* section in the README),
+  file-location warnings (READ FIRST box: exactly two files, exact
+  paths and names), and an MD5 verification walkthrough. No change
+  to the fix itself — V9.2 below remains the current build.
+
 ## V9.2 — 2026-10-30
 
 Patched bundle MD5: `a0cb4b7bb1e1c63d23fb877a2fa5ba5c`
