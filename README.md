@@ -6,7 +6,7 @@ current firmware.
 
 > **Status.** Field-tested on the author's printer (filament read/write
 > between Fluidd and the printer screen, box slots and external spool).
-> Current build: V9.2.
+> Current build: V9.3.
 
 ## ⚠️ READ FIRST — Where the files go
 

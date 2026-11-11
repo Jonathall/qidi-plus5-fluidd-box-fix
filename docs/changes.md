@@ -153,3 +153,11 @@ into the format Fluidd reads on the printer, each entry carrying its
 `filament_id`. Fluidd resolves everything — display, editing, the dialog's
 slot mapping — through this table, so it is required with both install
 paths.
+
+The table's `[colordict]` palette carries one subtlety: the panel
+resolves a slot color the firmware stored as a hex list by exact
+match against these entries, so each entry must equal the hex code
+the firmware itself writes for that palette color — which is not
+always the value in QIDI's stock table. Five entries differed and
+are corrected in V9.3 (see the changelog); colors set on the
+printer screen for those five never resolved in the panel before.

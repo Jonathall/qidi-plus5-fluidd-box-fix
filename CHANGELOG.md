@@ -3,6 +3,28 @@
 Bundle format: QIDI's shipped Fluidd v1.30.5 (`index-DlFvHGAh.js`).
 Reference stock bundle MD5: `b9bc4faaf367d0603d92d7217476c57a`.
 
+## V9.3 — 2026-11-10
+
+Bundle unchanged (patched bundle MD5: `a0cb4b7bb1e1c63d23fb877a2fa5c`).
+Filament table (`officiall_filas_list.cfg`) SHA-256:
+`4cf36a1b4aac923fc7dda4ee7e222e1c506768a6dc27156b56bdf35a0f1cb1c4`
+
+- **Color palette corrected to the hex codes the firmware writes.**
+  Five `[colordict]` entries, copied verbatim from the stock table,
+  did not match the hex values the printer itself stores when a
+  color is set on the printer screen: #4 `#5CF30F` → `#5CF30E`,
+  #7 `#FE98FE` → `#FF98FE`, #13 `#CADE4B` → `#CADF4B`,
+  #17 `#FE717A` → `#FF7174`, #20 `#898F9B` → `#898F8B`. The panel
+  resolves a screen-set color by exact hex match against
+  `[colordict]`; on a mismatch it fell back to palette index 0 and
+  the color never appeared in Fluidd. Setting a color from Fluidd
+  was unaffected (Fluidd writes the hex directly and the screen
+  renders it as-is), and the other 19 palette entries already
+  matched. Entry #20 is verified against the author's printer,
+  whose firmware publishes `color_rgb_str ['#898F8B']` for a grey
+  PLA Silk slot. Correction contributed by mayrthom via a fork
+  and merged here.
+
 ## Documentation — 2026-11-06
 
 - **Documentation:** step-by-step connection and install guide
