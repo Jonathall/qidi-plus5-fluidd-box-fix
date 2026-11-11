@@ -6,7 +6,7 @@ current firmware.
 
 > **Status.** Field-tested on the author's printer (filament read/write
 > between Fluidd and the printer screen, box slots and external spool).
-> Current build: V9.3.
+> Current build: V9.4.
 
 ## ⚠️ READ FIRST — Where the files go
 
@@ -295,10 +295,10 @@ ssh qidi@$IP 'md5sum /home/qidi/fluidd/assets/index-DlFvHGAh.js'
 
 ## Install — path B: patcher script (verifiable)
 
-`patcher/qidi_plus5_fluidd_fix.py` applies the same fix as 10 anchored
+`patcher/qidi_plus5_fluidd_fix.py` applies the same fix as 16 anchored
 replacements — each anchor must be found exactly once in your bundle or the
 script refuses to modify anything. On the reference stock bundle it produces
-the drop-in file **byte for byte** (MD5 `a0cb4b7bb1e1c63d23fb877a2fa5ba5c`).
+the drop-in file **byte for byte** (MD5 `3a4a3f3123154bd0a30983a345263fd5`).
 
 ```sh
 # on your PC, against a downloaded copy of your bundle:
@@ -316,7 +316,7 @@ upload each file to its exact location. The script can also
 run directly on the printer over SSH, in `~/fluidd/assets/`.
 
 If your bundle is not the reference stock build, the script stops. With
-`--force` it will still patch **if** all 10 anchors match your build exactly;
+`--force` it will still patch **if** all 16 anchors match your build exactly;
 the result will differ from the reference patched bundle and is untested —
 you proceed at your own risk.
 
@@ -328,7 +328,7 @@ you proceed at your own risk.
    check its MD5 — with the same command as in path A, step 2
    (`certutil -hashfile … MD5` on Windows, `md5 …` on Mac,
    `md5sum …` on Linux). It must now be
-   `a0cb4b7bb1e1c63d23fb877a2fa5ba5c` (the patched bundle). If
+   `3a4a3f3123154bd0a30983a345263fd5` (the patched bundle). If
    you still see the stock MD5
    `b9bc4faaf367d0603d92d7217476c57a`, the new file did not land
    in the served location — re-check the ⚠️ box at the top.

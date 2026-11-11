@@ -3,6 +3,59 @@
 Bundle format: QIDI's shipped Fluidd v1.30.5 (`index-DlFvHGAh.js`).
 Reference stock bundle MD5: `b9bc4faaf367d0603d92d7217476c57a`.
 
+## V9.4 — 2026-11-11
+
+Patched bundle MD5: `3a4a3f3123154bd0a30983a345263fd5`.
+Filament table unchanged from V9.3 (SHA-256:
+`4cf36a1b4aac923fc7dda4ee7e222e1c506768a6dc27156b56bdf35a0f1cb1c4`).
+
+- **Slot colors are no longer limited to the 24-entry palette.**
+  The panel's color model dated from the legacy numeric firmware:
+  a color set on the printer screen reached Fluidd as a hex code,
+  was converted to a palette index by exact match against
+  `[colordict]`, and the tile rendered the palette entry — so any
+  hex outside the table (or mistyped in it, see V9.3) collapsed to
+  index 0 and disappeared. The printer itself accepts and stores
+  any hex color, as does QIDI Studio. V9.4 carries the real hex
+  alongside the legacy index (`variables.colorHex`, patcher
+  changes 7, 10 and 11) and the three places that render a slot
+  color — panel tiles, the slot item list and the external-spool
+  rack — now prefer the real hex and fall back to the palette
+  lookup only when no hex is known (changes 12–14). The legacy
+  index resolution is unchanged, so nothing that worked before
+  changes.
+- **Full color picker in the color menu.** Below the 24 palette
+  swatches (kept as quick presets), the menu now embeds Fluidd's
+  own Iro color picker — the same component Fluidd uses for its
+  LED/output colors, already shipped inside this bundle — with
+  the current hex code shown under the wheel (change 15, wired
+  exactly as AppColorPicker uses it: options plus a v-model
+  binding on the slot's color). The component reports on release
+  (`input:end`), not per drag tick, and the pick flows into the
+  existing hex setter, so any color is stored on the printer
+  as-is and shown back exactly. The picker and its hex readout
+  sit in a wrapper whose click handler stops propagation: the
+  stock menu closes on any content click, so a click in the
+  wheel used to close it as the color set — now wheel and slider
+  clicks never reach the menu's close handler, while swatch
+  clicks keep the stock set-and-close behavior.
+- **The color setter no longer drops off-palette colors.** The
+  stock setter computed the picked color's palette key and the
+  hex-writing tail (change 6) only ran when a key was found —
+  harmless while only swatches fed it, but any other value was
+  silently discarded. The key is unused by the tail, so change 16
+  pins it and the write always runs. Verified on the complete
+  extracted setter: before, an off-palette value produced no
+  command at all; now it writes on slots 0–15 and the rack alike,
+  and palette colors write exactly as before.
+- Patcher grows from 10 to 16 anchored replacements; it still
+  reproduces the drop-in bundle byte for byte from the reference
+  stock bundle. Validated by harnesses running the patched
+  bundle's own getter, tile expressions and complete color
+  setter (palette hexes, the five V9.3 hexes, off-palette hexes,
+  legacy numeric values, empty slots — all green). Live-tested
+  on the printer 2026-11-11.
+
 ## V9.3 — 2026-11-10
 
 Bundle unchanged (patched bundle MD5: `a0cb4b7bb1e1c63d23fb877a2fa5c`).

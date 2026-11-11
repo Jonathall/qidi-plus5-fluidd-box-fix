@@ -9,7 +9,7 @@ firmware, which identifies filaments by QIDI filament IDs (QFA00, QFL31...)
 and hex colors instead of the legacy numeric format the bundled Fluidd
 still expects.
 
-The patch is a set of 10 anchored replacements (each anchor must be found
+The patch is a set of 16 anchored replacements (each anchor must be found
 exactly once, or the script refuses to touch the file). On the reference
 stock bundle it reproduces the tested patched bundle byte for byte.
 
@@ -38,7 +38,7 @@ import shutil
 import sys
 
 STOCK_MD5 = "b9bc4faaf367d0603d92d7217476c57a"    # reference stock bundle (Fluidd v1.30.5, Plus 5)
-PATCHED_MD5 = "a0cb4b7bb1e1c63d23fb877a2fa5ba5c"  # expected result on the reference stock bundle
+PATCHED_MD5 = "3a4a3f3123154bd0a30983a345263fd5"  # expected result on the reference stock bundle (V9.4)
 
 PATCHES = [
     # --- change 1 ---
@@ -59,18 +59,50 @@ PATCHES = [
     # --- change 6 ---
     ('s&&(this.selectIndex===16?I.printerGcodeScript(`SAVE_VARIABLE VARIABLE=color_slot16 VALUE="${s}"`):I.printerGcodeScript(`SAVE_VARIABLE VARIABLE=color_slot${this.selectIndex} VALUE="${s}"`))}',
      's&&(this.selectIndex===16?I.printerGcodeScript(`SAVE_VARIABLE VARIABLE=color_slot16 VALUE="[\'${String(t).replace("#","")}\']"`):I.printerGcodeScript(`SAVE_VARIABLE VARIABLE=color_slot${this.selectIndex} VALUE="[\'${String(t).replace("#","")}\']"`))}'),
-    # --- change 7 ---
+    # --- change 7 (V9.4: also records the raw hex per slot in hx2 -> variables.colorHex) ---
     ('s[v]=parseInt(e[g]??"0",10)}',
-     'const V=e[g];let hx=null;if(Array.isArray(V))hx="#"+V[0];else if(typeof V==="string"&&V.charAt(0)==="[")hx="#"+V.replace(/[\\[\\]\'"\\s]/g,"");if(hx!==null){const cd=((r.officiallFilasList||{}).colordict)||{},fk=Object.keys(cd).find(k=>String(cd[k]).toUpperCase()===hx.toUpperCase());s[v]=fk?parseInt(fk,10):0}else s[v]=parseInt(V??"0",10)}'),
+     'const V=e[g];let hx=null;if(Array.isArray(V))hx=V[0]?"#"+V[0]:"";else if(typeof V==="string"&&V.charAt(0)==="[")hx="#"+V.replace(/[\\[\\]\'"\\s]/g,"");if(hx&&hx.length>=7){const cd=((r.officiallFilasList||{}).colordict)||{},fk=Object.keys(cd).find(k=>String(cd[k]).toUpperCase()===hx.toUpperCase());s[v]=fk?parseInt(fk,10):0;hx2[v]=hx.toUpperCase()}else if(hx!==null)s[v]=0;else s[v]=parseInt(V??"0",10)}'),
     # --- change 8 ---
     ('n[v]=parseInt(e[g]??"0",10)}',
      'const V=e[g];if(typeof V==="string"&&isNaN(parseInt(V,10))){const cat=r.officiallFilasList||{},dk=Object.keys(cat).find(k=>k.startsWith("fila")&&cat[k]&&cat[k].filament_id===V);if(dk)n[v]=parseInt(dk.replace("fila",""),10);else{const bx=(r.printer.box_extras||{}).boxes||[];let nm=null;for(const b of bx){const fis=(b&&b.filament_info)||[];for(const fi of fis)if(fi&&fi.filament_id===V){nm=fi.filament_str;break}if(nm)break}if(!nm){const bz=bx[Math.floor(v/4)],fi=bz&&bz.filament_info?bz.filament_info[v%4]:null;nm=fi?fi.filament_str:null}const fk=nm?Object.keys(cat).find(k=>k.startsWith("fila")&&cat[k]&&cat[k].filament===nm):null;n[v]=fk?parseInt(fk.replace("fila",""),10):0}}else n[v]=parseInt(V??"0",10)}'),
     # --- change 9 ---
     ('i[v]=parseInt(e[g]??"0",10)}',
      'const FV=e["filament_slot"+v];if(typeof FV==="string"&&isNaN(parseInt(FV,10))){const cat=r.officiallFilasList||{},vl=cat.vendor_list||{},bx=(r.printer.box_extras||{}).boxes||[],bz=bx[Math.floor(v/4)],fi=bz&&bz.filament_info?bz.filament_info[v%4]:null,vs=fi?fi.vendor_str:null,fk=vs?Object.keys(vl).find(k=>vl[k]===vs):(()=>{const dk=Object.keys(cat).find(k=>k.startsWith("fila")&&cat[k]&&cat[k].filament_id===FV),ev=dk?cat[dk].vendor:null;return ev?Object.keys(vl).find(k=>vl[k]===ev):null})();i[v]=fk?parseInt(fk,10):parseInt(e[g]??"0",10)}else i[v]=parseInt(e[g]??"0",10)}'),
-    # --- change 10 ---
+    # --- change 10 (V9.4: the variables object also carries colorHex) ---
     ('return a[16]=1,{boxCount:t,colorSlot:s,filamentSlot:n,vendorSlot:i,slot:a,valueSlot:o,slotSync:l,rackExtra:c,lastLoadSlot:u}',
-     'return a[16]=1,{boxCount:t,colorSlot:s,filamentSlot:n,vendorSlot:i,slot:a,valueSlot:o,slotSync:l,rackExtra:[s[16],n[16],i[16]],lastLoadSlot:u}'),
+     'return a[16]=1,{boxCount:t,colorSlot:s,colorHex:hx2,filamentSlot:n,vendorSlot:i,slot:a,valueSlot:o,slotSync:l,rackExtra:[s[16],n[16],i[16]],lastLoadSlot:u}'),
+    # --- change 11 (V9.4) declare the per-slot hex array in getVariables ---
+    ('t=e.box_count??0,s=[],n=[],i=[],',
+     't=e.box_count??0,s=[],n=[],i=[],hx2=[],'),
+    # --- change 12 (V9.4) item colors prefer the real hex (slot list / file dialog items) ---
+    ('l=o?o[this.variables.colorSlot[n]]:"#000000"',
+     'l=(this.variables.colorHex&&this.variables.colorHex[n])||(o?o[this.variables.colorSlot[n]]:"#000000")'),
+    # --- change 13 (V9.4) item colors prefer the real hex (Box panel tiles) ---
+    ('C=((a=this.officialFilasListDictData)==null?void 0:a.colordict[String(this.variables.colorSlot[m])])??"#00000000"',
+     'C=(this.variables.colorHex&&this.variables.colorHex[m])||(((a=this.officialFilasListDictData)==null?void 0:a.colordict[String(this.variables.colorSlot[m])])??"#00000000")'),
+    # --- change 14 (V9.4) rack (slot 16) color prefers the real hex ---
+    ('color:((u=this.officialFilasListDictData)==null?void 0:u.colordict[this.variables.rackExtra[0]])??"#00000000"',
+     'color:(this.variables.colorHex&&this.variables.colorHex[16])||(((u=this.officialFilasListDictData)==null?void 0:u.colordict[this.variables.rackExtra[0]])??"#00000000")'),
+    # --- change 15 (V9.4) Fluidd's own Iro color picker under the palette presets ---
+    # Wiring copied from AppColorPicker's compiled use of AppIroColorPicker in
+    # this same bundle (attrs.options + model{value, callback}); the callback
+    # routes through handleColorClick so the pick lands in the hex setter.
+    # The picker + hex readout sit in a plain wrapper div whose click handler
+    # stops propagation: the stock menu closes on any content click that
+    # bubbles up to it, which killed press-drag-release picking (a click in
+    # the wheel closed the menu as it set). With propagation stopped, wheel
+    # and slider clicks never reach the menu's handler, while swatch clicks
+    # (outside the wrapper) keep the stock set-and-close behavior.
+    ('e.handleColorClick(e.colorItems[n-1])}}})])}),1)',
+     'e.handleColorClick(e.colorItems[n-1])}}})])}),1),t(Y,{attrs:{align:"center",justify:"center"}},[t(k,{attrs:{cols:"auto"}},[t("div",{on:{click:function(t){t.stopPropagation()}}},[t($w,{attrs:{options:{width:232,layout:[{component:gh.ui.Wheel,options:{wheelLightness:!1,wheelAngle:270,wheelDirection:"clockwise"}},{component:gh.ui.Slider,options:{sliderType:"value"}}]}},model:{value:e.selectedColor&&e.selectedColor!=="#00000000"?e.selectedColor:"#000000",callback:function(s){return e.handleColorClick(s.toUpperCase())},expression:"selectedColor"}}),t("div",{staticClass:"text-center"},[e._v(e._s(e.selectedColor||""))])])])])'),
+    # --- change 16 (V9.4) the color setter must not gate the write on the palette ---
+    # Stock head computed s = palette key of the picked color and change 6's
+    # tail writes only when s is truthy - fine for swatches, but it silently
+    # drops any off-palette color the picker produces. s is unused by the
+    # hex-writing tail, so pin it to 1.
+    ('set selectedColor(t){const s=this.getKeyByValue(this.officialFilasListDictData.colordict,t);',
+     'set selectedColor(t){const s=1;'),
+
 ]
 
 
