@@ -6,7 +6,32 @@ current firmware.
 
 > **Status.** Field-tested on the author's printer (filament read/write
 > between Fluidd and the printer screen, box slots and external spool).
-> Current build: V9.4.
+> Current builds: **V9.4** for firmware 01.01.02.01 / 01.01.01.07,
+> **V10** for firmware 01.01.02.02 — see the table below.
+
+## Which firmware do you have?
+
+The fix is built per firmware, because QIDI ships a different Fluidd
+bundle build with each line. **Your firmware version decides which
+files you install.** Everything you need is in the row for your
+firmware:
+
+| Firmware | Stock bundle (in `/home/qidi/fluidd/assets/`) | Stock MD5 | Patched MD5 | Files to install |
+| --- | --- | --- | --- | --- |
+| 01.01.01.07 | `index-DlFvHGAh.js` | `b9bc4faaf367d0603d92d7217476c57a` | `3a4a3f3123154bd0a30983a345263fd5` | `drop-in/01.01.02.01/` (fix V9.4) |
+| 01.01.02.01 | `index-DlFvHGAh.js` | `b9bc4faaf367d0603d92d7217476c57a` | `3a4a3f3123154bd0a30983a345263fd5` | `drop-in/01.01.02.01/` (fix V9.4) |
+| 01.01.02.02 | `index-nyEzQB9T.js` | `c655b6a006d1e9a1e97b188e9f4cde05` | `74eae054f918ca7b05b41f3811590ef0` | `drop-in/01.01.02.02/` (fix V10) |
+
+Firmware 01.01.01.07 and 01.01.02.01 ship the **identical** bundle
+(same file, same MD5), so the same fix build covers both. Firmware
+01.01.02.02 ships a rebuilt bundle — same Fluidd v1.30.5, different
+build — and needs the V10 build. If your bundle's MD5 matches neither
+stock MD5, **stop**: your build is not supported, and the patcher
+script will refuse it as well.
+
+Staying on your current firmware is fine: each build stays available
+in its own `drop-in/` folder, and the patcher script detects your
+bundle build automatically.
 
 ## ⚠️ READ FIRST — Where the files go
 
@@ -16,15 +41,18 @@ like this one are a file copied to the wrong place — read this
 before copying anything.
 
 - ✅ **The bundle goes here, and only here:**
-  `/home/qidi/fluidd/assets/index-DlFvHGAh.js`
+  `/home/qidi/fluidd/assets/` — under the exact name your firmware
+  ships: **`index-DlFvHGAh.js`** (firmware 01.01.02.01 / 01.01.01.07)
+  or **`index-nyEzQB9T.js`** (firmware 01.01.02.02). See the table
+  above.
   Verify the file already there by MD5 **before** replacing it
-  (it must be the stock MD5 in *Compatibility* below), and verify
-  again **after** (it must be the patched MD5 — see *Verify the
-  install*).
+  (it must be the stock MD5 for your firmware, in the table above),
+  and verify again **after** (it must be the patched MD5 — see
+  *Verify the install*).
 - 🚫 **Do not touch any other `index-*.js`.** Other bundle files
   can sit in `/home/qidi/fluidd/assets/`. Exactly one file
-  matters: the one named precisely **`index-DlFvHGAh.js`**. Leave
-  every other file in that folder alone.
+  matters: the one named precisely as above for your firmware.
+  Leave every other file in that folder alone.
 - ✅ **The filament catalog goes here, and only here:**
   `/home/qidi/printer_data/config/officiall_filas_list.cfg`
 
@@ -55,15 +83,29 @@ never updated for that change, so in the web interface:
   no longer publishes;
 - the Load / Unload buttons for the external spool are permanently greyed out.
 
+Firmware 01.01.02.02 goes one step further: it **dereferences** the two
+filament-editing surfaces of Fluidd — the dashboard Box card loses its
+render function and its entry in the dashboard's component registry, and
+the print-time filament assignment dialog loses its registrations and
+its call sites — so neither can be reached anymore, even though all of
+their code still ships in the bundle. The V10 build of this fix
+re-registers and re-assembles both, on top of the 01.01.02.02 code, and
+keeps every 01.01.02.02 behavior (including its new nozzle validation
+and its simplified no-Box upload flow).
+
 This patch repairs the bundled Fluidd in place — no replacement UI, nothing
 to run on your PC.
 
 ## Compatibility
 
 - **Printer:** QIDI Plus 5 with a QIDI Box (developed and tested with one Box).
-- **Fluidd:** v1.30.5, bundle `assets/index-DlFvHGAh.js`.
+- **Fluidd:** v1.30.5, in two bundle builds — `assets/index-DlFvHGAh.js`
+  (firmware 01.01.02.01 and 01.01.01.07) and `assets/index-nyEzQB9T.js`
+  (firmware 01.01.02.02).
 - **The real compatibility check is the bundle itself.** Reference stock
-  bundle: 1,778,604 bytes, MD5 `b9bc4faaf367d0603d92d7217476c57a`.
+  bundles: 1,778,604 bytes, MD5 `b9bc4faaf367d0603d92d7217476c57a`
+  (01.01.02.01 / 01.01.01.07) and 1,775,063 bytes, MD5
+  `c655b6a006d1e9a1e97b188e9f4cde05` (01.01.02.02).
   The patcher script verifies this before touching anything (see below).
 - Not for the Max4 or Q2 — different printers, different bundles; do not
   cross-apply.
@@ -74,8 +116,8 @@ Two files, **both are required**, whichever install path you choose:
 
 | File | Goes to | Role |
 | --- | --- | --- |
-| `index-DlFvHGAh.js` (patched bundle) | `/home/qidi/fluidd/assets/` on the printer | the repaired interface |
-| `officiall_filas_list.cfg` | `/home/qidi/printer_data/config/` on the printer | filament catalog in the new format: 56 filaments from the QIDI Studio catalog (Generic, QIDI, HATCHBOX, Polymaker, Bambu Lab, Overture) with their filament IDs |
+| the patched bundle for your firmware — `index-DlFvHGAh.js` or `index-nyEzQB9T.js`, from `drop-in/<your firmware>/` in this repo | `/home/qidi/fluidd/assets/` on the printer | the repaired interface |
+| `officiall_filas_list.cfg` (same file for every firmware, in the same `drop-in/<your firmware>/` folder) | `/home/qidi/printer_data/config/` on the printer | filament catalog in the new format: 56 filaments from the QIDI Studio catalog (Generic, QIDI, HATCHBOX, Polymaker, Bambu Lab, Overture) with their filament IDs |
 
 You move these files with an SFTP program from your computer.
 If you have never done that, the next section —
@@ -96,9 +138,10 @@ upload, you are only looking.
 - The printer **switched on and idle**: no print running, no
   filament load/unload in progress.
 - About 15–20 minutes.
-- The two files from this repo's `drop-in/` folder, saved
-  somewhere you can find them again (for example your Downloads
-  folder). If you downloaded this repo as a ZIP, unzip it first.
+- The two files from this repo's `drop-in/<your firmware>/`
+  folder (see the table at the top), saved somewhere you can find
+  them again (for example your Downloads folder). If you
+  downloaded this repo as a ZIP, unzip it first.
 
 **Step 1 — Find the printer's IP address**
 
@@ -198,7 +241,8 @@ pick one:
 1. In the right panel, go to the file's folder (step 4).
 2. Right-click the file → **Rename**.
 3. Add `.orig` at the very end of the name — for example
-   `index-DlFvHGAh.js` becomes `index-DlFvHGAh.js.orig` — and
+   `index-DlFvHGAh.js` becomes `index-DlFvHGAh.js.orig` (on
+   firmware 01.01.02.02 the file is `index-nyEzQB9T.js`) — and
    confirm (Enter / **OK**).
 4. The original now sits next to where it was, under its backup
    name, and the original name is free for the new file.
@@ -217,6 +261,9 @@ and edit the name the same way.)
 mv /home/qidi/fluidd/assets/index-DlFvHGAh.js /home/qidi/fluidd/assets/index-DlFvHGAh.js.orig
 mv /home/qidi/printer_data/config/officiall_filas_list.cfg /home/qidi/printer_data/config/officiall_filas_list.cfg.orig
 ```
+
+(On firmware 01.01.02.02, the bundle is named `index-nyEzQB9T.js` —
+use that name in the first line.)
 
 3. Close the terminal window when done.
 
@@ -254,8 +301,10 @@ ssh qidi@$IP 'mv /home/qidi/fluidd/assets/index-DlFvHGAh.js /home/qidi/fluidd/as
 ssh qidi@$IP 'mv /home/qidi/printer_data/config/officiall_filas_list.cfg /home/qidi/printer_data/config/officiall_filas_list.cfg.orig'
 
 # 2. Upload the two files, exact names, exact places
-scp drop-in/index-DlFvHGAh.js        qidi@$IP:/home/qidi/fluidd/assets/index-DlFvHGAh.js
-scp drop-in/officiall_filas_list.cfg qidi@$IP:/home/qidi/printer_data/config/officiall_filas_list.cfg
+#    (firmware 01.01.02.02: use drop-in/01.01.02.02/index-nyEzQB9T.js
+#     and the destination name index-nyEzQB9T.js)
+scp drop-in/01.01.02.01/index-DlFvHGAh.js        qidi@$IP:/home/qidi/fluidd/assets/index-DlFvHGAh.js
+scp drop-in/01.01.02.01/officiall_filas_list.cfg qidi@$IP:/home/qidi/printer_data/config/officiall_filas_list.cfg
 
 # 3. Check what is actually on the printer now
 ssh qidi@$IP 'md5sum /home/qidi/fluidd/assets/index-DlFvHGAh.js'
@@ -267,41 +316,54 @@ ssh qidi@$IP 'md5sum /home/qidi/fluidd/assets/index-DlFvHGAh.js'
    printer*, steps 1–3.
 2. **Check your stock bundle first.** In the right panel, go to
    `/home/qidi/fluidd/assets` (step 4 of *Connecting*) and
-   download `index-DlFvHGAh.js` to your computer (drag it from
-   the right panel to the left). Verify its MD5 is
-   `b9bc4faaf367d0603d92d7217476c57a`. To compute an MD5 on your
+   download your bundle file to your computer (drag it from the
+   right panel to the left) — `index-DlFvHGAh.js` on firmware
+   01.01.02.01 / 01.01.01.07, `index-nyEzQB9T.js` on firmware
+   01.01.02.02. Verify its MD5 is the **stock MD5 for your
+   firmware** in the table at the top. To compute an MD5 on your
    computer: Windows — open a command prompt in the file's
-   folder and run `certutil -hashfile index-DlFvHGAh.js MD5`;
-   Mac — `md5 index-DlFvHGAh.js`; Linux — `md5sum
-   index-DlFvHGAh.js`. If it does not match, **stop** — your
-   Fluidd build differs; use path B so the anchors can verify
-   your build, or don't apply the fix.
+   folder and run `certutil -hashfile <bundle file> MD5`;
+   Mac — `md5 <bundle file>`; Linux — `md5sum <bundle file>`.
+   If it does not match, **stop** — your Fluidd build differs;
+   use path B so the anchors can verify your build, or don't
+   apply the fix.
 3. **Back up both files** — follow step 5 of *Connecting* for
-   the bundle (`index-DlFvHGAh.js` → `index-DlFvHGAh.js.orig`)
+   the bundle (your bundle file → the same name plus `.orig`)
    and for the catalog (`officiall_filas_list.cfg` →
    `officiall_filas_list.cfg.orig`, in
    `/home/qidi/printer_data/config`).
 4. **Upload the bundle** — follow step 6 of *Connecting*: into
-   `/home/qidi/fluidd/assets`, under the exact name
-   `index-DlFvHGAh.js`, and nowhere else.
+   `/home/qidi/fluidd/assets`, under the exact bundle name for
+   your firmware, and nowhere else.
 5. **Upload the filament catalog** — in the right panel, go to
    `/home/qidi/printer_data/config` (step 4 of *Connecting*),
    then upload as in step 6: `officiall_filas_list.cfg` from
-   this repo's `drop-in/` folder, exact name, into that folder
-   only. (The original is already renamed to
+   this repo's `drop-in/<your firmware>/` folder, exact name,
+   into that folder only. (The original is already renamed to
    `officiall_filas_list.cfg.orig` from step 3 above.)
 6. **Hard-refresh** Fluidd in your browser (Ctrl+F5).
 7. **Verify the install** (next section) — do not skip this.
 
 ## Install — path B: patcher script (verifiable)
 
-`patcher/qidi_plus5_fluidd_fix.py` applies the same fix as 16 anchored
-replacements — each anchor must be found exactly once in your bundle or the
-script refuses to modify anything. On the reference stock bundle it produces
-the drop-in file **byte for byte** (MD5 `3a4a3f3123154bd0a30983a345263fd5`).
+`patcher/qidi_plus5_fluidd_fix.py` is the unified patcher: it identifies
+your bundle by MD5 (then by file name) and dispatches to the patcher
+engine for your firmware's bundle build
+(`patcher/qidi_plus5_fluidd_fix_010201.py` for 01.01.02.01 / 01.01.01.07,
+`patcher/qidi_plus5_fluidd_fix_010202.py` for 01.01.02.02 — either engine
+can also be run directly). The fix is applied as anchored replacements —
+16 on the 01.01.02.01 bundle, 26 on the 01.01.02.02 bundle (the 16, plus
+10 that restore the Box card and the print dialog) — each anchor must be
+found exactly once in your bundle or the script refuses to modify
+anything. On the reference stock bundle it produces the drop-in file
+**byte for byte** (patched MD5 `3a4a3f3123154bd0a30983a345263fd5` for
+01.01.02.01 / 01.01.01.07, `74eae054f918ca7b05b41f3811590ef0` for
+01.01.02.02).
 
 ```sh
-# on your PC, against a downloaded copy of your bundle:
+# on your PC, against a downloaded copy of your bundle
+# (examples show the 01.01.02.01 bundle; on firmware 01.01.02.02
+#  the file is index-nyEzQB9T.js — same commands):
 python3 qidi_plus5_fluidd_fix.py --check    index-DlFvHGAh.js   # verify, change nothing
 python3 qidi_plus5_fluidd_fix.py --dry-run  index-DlFvHGAh.js   # simulate
 python3 qidi_plus5_fluidd_fix.py            index-DlFvHGAh.js   # apply (writes index-DlFvHGAh.js.orig backup)
@@ -310,28 +372,31 @@ python3 qidi_plus5_fluidd_fix.py --restore  index-DlFvHGAh.js   # undo from the 
 
 Then connect to the printer (*Connecting to the printer*,
 steps 1–4) and upload the patched bundle **and** the filament
-table (`drop-in/officiall_filas_list.cfg`) as in path A,
-steps 3–6 — back both originals up as `.orig` first, then
-upload each file to its exact location. The script can also
-run directly on the printer over SSH, in `~/fluidd/assets/`.
+table (`drop-in/<your firmware>/officiall_filas_list.cfg`) as
+in path A, steps 3–6 — back both originals up as `.orig`
+first, then upload each file to its exact location. The script
+can also run directly on the printer over SSH, in
+`~/fluidd/assets/`.
 
-If your bundle is not the reference stock build, the script stops. With
-`--force` it will still patch **if** all 16 anchors match your build exactly;
+If your bundle is not a reference stock build, the script stops. With
+`--force` it will still patch **if** all anchors match your build exactly;
 the result will differ from the reference patched bundle and is untested —
 you proceed at your own risk.
 
 ## Verify the install
 
-1. **Re-download the served file.** Fetch
-   `/home/qidi/fluidd/assets/index-DlFvHGAh.js` from the printer
-   again (right panel → drag it back to your computer) and
-   check its MD5 — with the same command as in path A, step 2
+1. **Re-download the served file.** Fetch your bundle file
+   from `/home/qidi/fluidd/assets/` on the printer again
+   (right panel → drag it back to your computer) and check its
+   MD5 — with the same command as in path A, step 2
    (`certutil -hashfile … MD5` on Windows, `md5 …` on Mac,
-   `md5sum …` on Linux). It must now be
-   `3a4a3f3123154bd0a30983a345263fd5` (the patched bundle). If
-   you still see the stock MD5
-   `b9bc4faaf367d0603d92d7217476c57a`, the new file did not land
-   in the served location — re-check the ⚠️ box at the top.
+   `md5sum …` on Linux). It must now be the **patched MD5 for
+   your firmware** from the table at the top
+   (`3a4a3f3123154bd0a30983a345263fd5` on 01.01.02.01 /
+   01.01.01.07, `74eae054f918ca7b05b41f3811590ef0` on
+   01.01.02.02). If you still see your stock MD5, the new file
+   did not land in the served location — re-check the ⚠️ box
+   at the top.
 2. **Hard-refresh** Fluidd in your browser (**Ctrl+F5**).
    Fluidd ships a service worker that can keep serving the
    previous bundle from cache; a verified install can look
@@ -342,6 +407,11 @@ you proceed at your own risk.
 
 ## What the fix does
 
+- **Firmware 01.01.02.02 only — the Box card and the print dialog are
+  back.** The dashboard Box card and the print-time filament assignment
+  dialog, dereferenced by that firmware, are re-registered and
+  re-assembled from the code that still ships in its bundle; every
+  other change below applies to all supported firmwares.
 - **Identity read/write (box slots).** Slots are read from the firmware's own
   filament data and written back as filament IDs + hex colors — the formats
   the firmware and the printer screen use. What you set in Fluidd is what the

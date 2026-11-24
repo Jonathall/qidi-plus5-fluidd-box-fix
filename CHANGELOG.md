@@ -2,6 +2,58 @@
 
 Bundle format: QIDI's shipped Fluidd v1.30.5 (`index-DlFvHGAh.js`).
 Reference stock bundle MD5: `b9bc4faaf367d0603d92d7217476c57a`.
+Firmware 01.01.02.02 ships a rebuilt bundle (`index-nyEzQB9T.js`,
+reference stock MD5 `c655b6a006d1e9a1e97b188e9f4cde05`) — see V10.
+
+## V10 — 2026-11-24
+
+Firmware 01.01.02.02 build. Reference stock bundle:
+`index-nyEzQB9T.js` (1,775,063 bytes, MD5
+`c655b6a006d1e9a1e97b188e9f4cde05`). Patched bundle MD5:
+`74eae054f918ca7b05b41f3811590ef0`.
+Filament table unchanged from V9.3 (SHA-256:
+`4cf36a1b4aac923fc7dda4ee7e222e1c506768a6dc27156b56bdf35a0f1cb1c4`).
+
+- **Ported to the 01.01.02.02 bundle.** QIDI recompiled the same
+  Fluidd v1.30.5 with a different identifier renaming, which
+  renamed the bundle and broke 4 of the 16 anchors — all pure
+  renames, verified in context. The other 12 anchors carry over
+  verbatim; changes 1, 5, 6 and 12 were re-anchored on the renamed
+  identifiers, and the wiring injected by change 15 was re-aliased
+  (VRow/VCol/Iro picker) to the new build.
+- **The dashboard Box card is back.** Firmware 01.01.02.02
+  dereferenced the card: the wrapper component lost its render
+  function and its entry in the dashboard's component registry,
+  while the panel itself still ships in the bundle, orphaned. The
+  patch re-injects the wrapper's render function (adapted to the
+  new build's identifiers) and re-registers the card; the stock
+  layout entry and the `hasBox` filter clause were still in
+  place, so the card returns to the dashboard.
+- **The print-time filament assignment dialog is back.** The
+  firmware removed the dialog's three component registrations,
+  its render function and assembly, and the four `box_count`
+  branches that opened it (both print handlers, both upload
+  handlers). The patch re-injects the render (adapted identifier
+  by identifier — its scoped CSS still ships in the .02 CSS),
+  re-registers the dialog in its three parent components, and
+  restores the four branches on top of the .02 code: the spoolman
+  branch and the .02 no-box upload-and-print behavior are
+  preserved exactly.
+- Patcher grows from 16 to 26 anchored replacements
+  (`patcher/qidi_plus5_fluidd_fix_010202.py`); it reproduces the
+  drop-in bundle byte for byte from the .02 reference stock
+  bundle. Validated offline: every step applies exactly once,
+  undoing all steps reproduces the stock bundle byte for byte
+  (no .02 code is altered outside the intended edits), and
+  `node --check` passes. Field-tested on the author's printer:
+  Box card and Box settings live in Fluidd, setting changes sync
+  with the printer screen in real time.
+- Repo layout: the drop-in files now live in per-firmware folders
+  (`drop-in/01.01.02.01/`, `drop-in/01.01.02.02/`), and
+  `patcher/qidi_plus5_fluidd_fix.py` is a unified patcher that
+  identifies the bundle by MD5 and dispatches to the per-firmware
+  engine (`qidi_plus5_fluidd_fix_010201.py` /
+  `qidi_plus5_fluidd_fix_010202.py`).
 
 ## V9.4 — 2026-11-11
 
