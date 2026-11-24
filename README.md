@@ -6,7 +6,7 @@ current firmware.
 
 > **Status.** Field-tested on the author's printer (filament read/write
 > between Fluidd and the printer screen, box slots and external spool).
-> Current builds: **V9.4** for firmware 01.01.02.01 / 01.01.01.07,
+> Current builds: **V9.4** for firmware 01.01.02.01,
 > **V10** for firmware 01.01.02.02 — see the table below.
 
 ## Which firmware do you have?
@@ -18,13 +18,10 @@ firmware:
 
 | Firmware | Stock bundle (in `/home/qidi/fluidd/assets/`) | Stock MD5 | Patched MD5 | Files to install |
 | --- | --- | --- | --- | --- |
-| 01.01.01.07 | `index-DlFvHGAh.js` | `b9bc4faaf367d0603d92d7217476c57a` | `3a4a3f3123154bd0a30983a345263fd5` | `drop-in/01.01.02.01/` (fix V9.4) |
 | 01.01.02.01 | `index-DlFvHGAh.js` | `b9bc4faaf367d0603d92d7217476c57a` | `3a4a3f3123154bd0a30983a345263fd5` | `drop-in/01.01.02.01/` (fix V9.4) |
 | 01.01.02.02 | `index-nyEzQB9T.js` | `c655b6a006d1e9a1e97b188e9f4cde05` | `74eae054f918ca7b05b41f3811590ef0` | `drop-in/01.01.02.02/` (fix V10) |
 
-Firmware 01.01.01.07 and 01.01.02.01 ship the **identical** bundle
-(same file, same MD5), so the same fix build covers both. Firmware
-01.01.02.02 ships a rebuilt bundle — same Fluidd v1.30.5, different
+Firmware 01.01.02.02 ships a rebuilt bundle — same Fluidd v1.30.5, different
 build — and needs the V10 build. If your bundle's MD5 matches neither
 stock MD5, **stop**: your build is not supported, and the patcher
 script will refuse it as well.
@@ -42,7 +39,7 @@ before copying anything.
 
 - ✅ **The bundle goes here, and only here:**
   `/home/qidi/fluidd/assets/` — under the exact name your firmware
-  ships: **`index-DlFvHGAh.js`** (firmware 01.01.02.01 / 01.01.01.07)
+  ships: **`index-DlFvHGAh.js`** (firmware 01.01.02.01)
   or **`index-nyEzQB9T.js`** (firmware 01.01.02.02). See the table
   above.
   Verify the file already there by MD5 **before** replacing it
@@ -100,11 +97,11 @@ to run on your PC.
 
 - **Printer:** QIDI Plus 5 with a QIDI Box (developed and tested with one Box).
 - **Fluidd:** v1.30.5, in two bundle builds — `assets/index-DlFvHGAh.js`
-  (firmware 01.01.02.01 and 01.01.01.07) and `assets/index-nyEzQB9T.js`
+  (firmware 01.01.02.01) and `assets/index-nyEzQB9T.js`
   (firmware 01.01.02.02).
 - **The real compatibility check is the bundle itself.** Reference stock
   bundles: 1,778,604 bytes, MD5 `b9bc4faaf367d0603d92d7217476c57a`
-  (01.01.02.01 / 01.01.01.07) and 1,775,063 bytes, MD5
+  (01.01.02.01) and 1,775,063 bytes, MD5
   `c655b6a006d1e9a1e97b188e9f4cde05` (01.01.02.02).
   The patcher script verifies this before touching anything (see below).
 - Not for the Max4 or Q2 — different printers, different bundles; do not
@@ -318,7 +315,7 @@ ssh qidi@$IP 'md5sum /home/qidi/fluidd/assets/index-DlFvHGAh.js'
    `/home/qidi/fluidd/assets` (step 4 of *Connecting*) and
    download your bundle file to your computer (drag it from the
    right panel to the left) — `index-DlFvHGAh.js` on firmware
-   01.01.02.01 / 01.01.01.07, `index-nyEzQB9T.js` on firmware
+   01.01.02.01, `index-nyEzQB9T.js` on firmware
    01.01.02.02. Verify its MD5 is the **stock MD5 for your
    firmware** in the table at the top. To compute an MD5 on your
    computer: Windows — open a command prompt in the file's
@@ -349,7 +346,7 @@ ssh qidi@$IP 'md5sum /home/qidi/fluidd/assets/index-DlFvHGAh.js'
 `patcher/qidi_plus5_fluidd_fix.py` is the unified patcher: it identifies
 your bundle by MD5 (then by file name) and dispatches to the patcher
 engine for your firmware's bundle build
-(`patcher/qidi_plus5_fluidd_fix_010201.py` for 01.01.02.01 / 01.01.01.07,
+(`patcher/qidi_plus5_fluidd_fix_010201.py` for 01.01.02.01,
 `patcher/qidi_plus5_fluidd_fix_010202.py` for 01.01.02.02 — either engine
 can also be run directly). The fix is applied as anchored replacements —
 16 on the 01.01.02.01 bundle, 26 on the 01.01.02.02 bundle (the 16, plus
@@ -357,7 +354,7 @@ can also be run directly). The fix is applied as anchored replacements —
 found exactly once in your bundle or the script refuses to modify
 anything. On the reference stock bundle it produces the drop-in file
 **byte for byte** (patched MD5 `3a4a3f3123154bd0a30983a345263fd5` for
-01.01.02.01 / 01.01.01.07, `74eae054f918ca7b05b41f3811590ef0` for
+01.01.02.01, `74eae054f918ca7b05b41f3811590ef0` for
 01.01.02.02).
 
 ```sh
@@ -393,7 +390,7 @@ you proceed at your own risk.
    `md5sum …` on Linux). It must now be the **patched MD5 for
    your firmware** from the table at the top
    (`3a4a3f3123154bd0a30983a345263fd5` on 01.01.02.01 /
-   01.01.01.07, `74eae054f918ca7b05b41f3811590ef0` on
+   `74eae054f918ca7b05b41f3811590ef0` on
    01.01.02.02). If you still see your stock MD5, the new file
    did not land in the served location — re-check the ⚠️ box
    at the top.

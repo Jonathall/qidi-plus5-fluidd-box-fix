@@ -6,8 +6,7 @@ One entry point for every supported firmware. This script identifies the
 Fluidd bundle you point it at - by MD5 first, then by file name - and
 dispatches to the patcher engine for that bundle build:
 
-  index-DlFvHGAh.js   firmware 01.01.02.01 (firmware 01.01.01.07 ships
-                      the identical bundle and is covered as well)
+  index-DlFvHGAh.js   firmware 01.01.02.01
                       -> qidi_plus5_fluidd_fix_010201.py
   index-nyEzQB9T.js   firmware 01.01.02.02
                       -> qidi_plus5_fluidd_fix_010202.py
@@ -47,8 +46,8 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 # bundle MD5 -> engine script (stock and already-patched builds, so that
 # --check / --restore also dispatch correctly on a patched bundle)
 BY_MD5 = {
-    "b9bc4faaf367d0603d92d7217476c57a": "qidi_plus5_fluidd_fix_010201.py",  # stock  .01/.07
-    "3a4a3f3123154bd0a30983a345263fd5": "qidi_plus5_fluidd_fix_010201.py",  # patched .01/.07
+    "b9bc4faaf367d0603d92d7217476c57a": "qidi_plus5_fluidd_fix_010201.py",  # stock  .01
+    "3a4a3f3123154bd0a30983a345263fd5": "qidi_plus5_fluidd_fix_010201.py",  # patched .01
     "c655b6a006d1e9a1e97b188e9f4cde05": "qidi_plus5_fluidd_fix_010202.py",  # stock  .02
     "74eae054f918ca7b05b41f3811590ef0": "qidi_plus5_fluidd_fix_010202.py",  # patched .02
 }
@@ -62,7 +61,7 @@ BY_NAME = {
 
 SUPPORTED = (
     "supported bundles:\n"
-    "  index-DlFvHGAh.js  (firmware 01.01.02.01 / 01.01.01.07, "
+    "  index-DlFvHGAh.js  (firmware 01.01.02.01, "
     "stock MD5 b9bc4faaf367d0603d92d7217476c57a)\n"
     "  index-nyEzQB9T.js  (firmware 01.01.02.02, "
     "stock MD5 c655b6a006d1e9a1e97b188e9f4cde05)"

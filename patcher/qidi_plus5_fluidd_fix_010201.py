@@ -13,8 +13,7 @@ The patch is a set of 16 anchored replacements (each anchor must be found
 exactly once, or the script refuses to touch the file). On the reference
 stock bundle it reproduces the tested patched bundle byte for byte.
 
-This is the patcher for the firmware 01.01.02.01 bundle build (firmware
-01.01.01.07 ships the identical bundle, so it is covered too). For any
+This is the patcher for the firmware 01.01.02.01 bundle build. For any
 firmware, the unified patcher qidi_plus5_fluidd_fix.py detects the bundle
 build and dispatches to the right engine; this file can also be run
 directly.
